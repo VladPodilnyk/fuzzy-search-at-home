@@ -12,12 +12,11 @@ import (
 )
 
 type AppData struct {
-	imageService  service.ImageService
-	viewerService service.ViewerService
+	imageService service.ImageService
 }
 
-func New(imageService service.ImageService, viewerService service.ViewerService) *AppData {
-	return &AppData{imageService: imageService, viewerService: viewerService}
+func New(imageService service.ImageService) *AppData {
+	return &AppData{imageService: imageService}
 }
 
 func (app *AppData) Run() {
@@ -27,7 +26,7 @@ func (app *AppData) Run() {
 
 	// Launch server
 	go func() {
-		if err := e.Start(":1323"); err != nil && err != http.ErrServerClosed {
+		if err := e.Start("localhost:1323"); err != nil && err != http.ErrServerClosed {
 			e.Logger.Fatal("shutting down the server")
 		}
 	}()
@@ -44,9 +43,9 @@ func (app *AppData) Run() {
 func (app *AppData) getRoutes() *echo.Echo {
 	mux := echo.New()
 
-	mux.GET("/list", app.viewerService.GetRecords)
-	mux.GET("/download", app.imageService.DownloadFile)
-	mux.GET("/preview", app.imageService.GetFilePreview)
+	mux.POST("/list", app.imageService.ListFiles)
+	mux.POST("/download", app.imageService.DownloadFile)
+	mux.POST("/preview", app.imageService.GetFilePreview)
 	mux.POST("/upload", app.imageService.UploadFile)
 	return mux
 }

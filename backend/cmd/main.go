@@ -2,13 +2,20 @@ package main
 
 import (
 	"dicomviewer/internal/app"
+	"dicomviewer/internal/repository"
 	"dicomviewer/internal/service"
 )
 
 func main() {
-	imageService := service.NewImageService()
-	viewerService := service.NewViewerService(nil)
+	// Init repository layer
+	objStorage := repository.NewInMemoryObjectStorage()
+	filesStorage := repository.NewInMemFilesRepository()
+	patientStorage := repository.NewInMemPatientRepository()
 
-	application := app.New(imageService, viewerService)
+	// Init service layer
+	imageService := service.NewImageService(objStorage, patientStorage, filesStorage)
+
+	// Launch
+	application := app.New(imageService)
 	application.Run()
 }

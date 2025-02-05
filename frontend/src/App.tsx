@@ -1,33 +1,116 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useCallback, useState } from 'react'
 import './App.css'
 
+const baseUrl = '/api/v1'
+
+const saveBlobImage = (blob: Blob, filename: string) => {
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href); // Clean up memory
+};
+
+
+const downloadFile = async (id: number) => {
+  try {
+    // You can write the URL of your server or any other endpoint used for file upload
+    const result = await fetch(`${baseUrl}/download`, {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ id }),
+    });
+
+    const data = await result.blob();
+    saveBlobImage(data, "file.dcm");
+
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+
+const ListComponent: React.FC<{values: Array<Record<string, any>>}> = ({ values }) => {
+  if (values.length === 0) {
+    return null
+  }
+
+  return (
+    <ul>
+      {values.map((value) => {
+        const func = () => downloadFile(value.id);
+
+        return (
+          <li key={value.id}>
+            <p>{value.original_file} {value.series_description}</p>
+            <button onClick={func}>Download</button>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+
 function App() {
-  const [count, setCount] = useState(0)
+  const [file, setFile] = useState<File | null>(null);
+  const [list, setList] = useState<Array<Record<string, any>>>([])
+
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+    }
+  }, []);
+
+  const sendFile = useCallback(async () => {
+    if (file) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        // You can write the URL of your server or any other endpoint used for file upload
+        const result = await fetch(`${baseUrl}/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+
+        const data = await result.json();
+
+        console.log(data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }, [file]);
+
+  const listFiles = useCallback(async () => {
+    try {
+      const response = await fetch(`${baseUrl}/list`, {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ offset: 0, limit: 100 })
+      });
+
+      const res = await response.json();
+      setList(res)
+    } catch (e) {
+      console.log("ERROR", e);
+    }
+  }, []);
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      <input id="file" type="file" onChange={handleFileChange} />
+      <button onClick={sendFile}>Upload</button>
+      <button onClick={listFiles}>Get file list</button>
+      <ListComponent values={list} />
     </>
   )
 }
