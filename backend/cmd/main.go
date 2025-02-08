@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "dicomviewer/cmd/docs"
 	"dicomviewer/internal/app"
 	"dicomviewer/internal/repository"
 	"dicomviewer/internal/service"

@@ -23,3 +23,11 @@ dist-ssr
 *.sln
 *.sw?
 
+# Swagger docs
+backend/cmd/docs
+
+# Generated client code
+frontend/src/generated/.openapi-generator
+frontend/src/generated/.openapi-generator-ignore
+
+

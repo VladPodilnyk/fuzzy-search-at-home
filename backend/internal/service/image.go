@@ -126,6 +126,13 @@ func (impl *ImageServiceImpl) GetFilePreview(ctx echo.Context) error {
 	return ctx.Blob(http.StatusOK, "application/png", bytes)
 }
 
+//	@Summary		List files
+//	@Description	get all file attachments
+//	@Accept			json
+//	@Produce		json
+//	@Param			page	body	models.PageQuery	true	"Page start and size"
+//	@Success		200		{array}	models.FileDataRow	"List of file attachments"
+//	@Router			/list [post]
 func (impl *ImageServiceImpl) ListFiles(ctx echo.Context) error {
 	context := ctx.Request().Context()
 

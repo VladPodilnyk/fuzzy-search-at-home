@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
+	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
 type AppData struct {
@@ -40,6 +41,10 @@ func (app *AppData) Run() {
 	}
 }
 
+// @Title		My Echo API
+// @Version		1.0
+// @Description	This is a sample API using Swaggo with Echo
+// @BasePath	/
 func (app *AppData) getRoutes() *echo.Echo {
 	mux := echo.New()
 
@@ -47,5 +52,7 @@ func (app *AppData) getRoutes() *echo.Echo {
 	mux.POST("/download", app.imageService.DownloadFile)
 	mux.POST("/preview", app.imageService.GetFilePreview)
 	mux.POST("/upload", app.imageService.UploadFile)
+
+	mux.GET("/swagger/*", echoSwagger.WrapHandler)
 	return mux
 }

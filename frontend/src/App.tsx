@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import './App.css'
+import { Configuration, DefaultApi, ModelsFileDataRow } from './generated';
 
 const baseUrl = '/api/v1'
 
@@ -35,7 +36,7 @@ const downloadFile = async (id: number) => {
 }
 
 
-const ListComponent: React.FC<{values: Array<Record<string, any>>}> = ({ values }) => {
+const ListComponent: React.FC<{values: Array<ModelsFileDataRow>}> = ({ values }) => {
   if (values.length === 0) {
     return null
   }
@@ -43,11 +44,11 @@ const ListComponent: React.FC<{values: Array<Record<string, any>>}> = ({ values 
   return (
     <ul>
       {values.map((value) => {
-        const func = () => downloadFile(value.id);
+        const func = () => downloadFile(value.id!);
 
         return (
           <li key={value.id}>
-            <p>{value.original_file} {value.series_description}</p>
+            <p>{value.originalFile} {value.seriesDescription}</p>
             <button onClick={func}>Download</button>
           </li>
         )
@@ -59,7 +60,7 @@ const ListComponent: React.FC<{values: Array<Record<string, any>>}> = ({ values 
 
 function App() {
   const [file, setFile] = useState<File | null>(null);
-  const [list, setList] = useState<Array<Record<string, any>>>([])
+  const [list, setList] = useState<Array<ModelsFileDataRow>>([]);
 
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -90,15 +91,19 @@ function App() {
 
   const listFiles = useCallback(async () => {
     try {
-      const response = await fetch(`${baseUrl}/list`, {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ offset: 0, limit: 100 })
-      });
+      // const response = await fetch(`${baseUrl}/list`, {
+      //   method: 'POST',
+      //   headers: {
+      //     "Content-Type": "application/json"
+      //   },
+      //   body: JSON.stringify({ offset: 0, limit: 100 })
+      // });
 
-      const res = await response.json();
+      // const res = await response.json();
+      const api = new DefaultApi(new Configuration({basePath: baseUrl }));
+      const res = await api.listPost({
+        page: {offset: 0, limit: 100}
+      });
       setList(res)
     } catch (e) {
       console.log("ERROR", e);
