@@ -1,9 +1,5 @@
-# Dicom viewer
+# Fuzzy search at home
 
-⚠️ __This is a playground / example repository__ ⚠️
-
-This repo is just an playground to explore different ways to build a full stack app with Golang and Typescript + React
-ensuring full stack type safety.
-
-### How to run it?
-🚧
+This repo is under major re-write.
+Previosly this was a playground for a full stack app that reads and displays Dicom files.
+Now, it should be a small demo app to play with toy implementation of fuzzy search 🚧
